@@ -1,0 +1,6 @@
+@InvestYes.API_HostAddress = http://localhost:5030
+
+GET {{InvestYes.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

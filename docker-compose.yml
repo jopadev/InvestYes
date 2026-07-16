@@ -1,0 +1,239 @@
+services:
+
+  ##########################################################
+  # INVESTYES API
+  ##########################################################
+
+  # investyes.api:
+    # container_name: investyes-api
+
+    # build:
+      # context: .
+      # dockerfile: src/InvestYes.API/Dockerfile
+
+    # ports:
+      # - "5000:8080"
+
+    # depends_on:
+      # - postgres
+      # - rabbitmq
+      # - redis
+      # - seq
+      # - otel-collector
+
+    # environment:
+      # ASPNETCORE_ENVIRONMENT: Development
+
+      # ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=investyes;Username=postgres;Password=postgres
+
+      # RabbitMq__Host: rabbitmq
+      # RabbitMq__Port: 5672
+      # RabbitMq__Username: guest
+      # RabbitMq__Password: guest
+
+      # Redis__Connection: redis:6379
+
+      # OpenTelemetry__OtlpEndpoint: http://otel-collector:4317
+
+    # networks:
+      # - investyes-network
+
+  ##########################################################
+  # POSTGRES
+  ##########################################################
+
+  postgres:
+    image: postgres:16
+
+    container_name: investyes-postgres
+
+    restart: always
+
+    environment:
+      POSTGRES_DB: investyes
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      - investyes-network
+
+  ##########################################################
+  # RABBITMQ
+  ##########################################################
+
+  rabbitmq:
+    image: rabbitmq:3-management
+
+    container_name: investyes-rabbitmq
+
+    restart: always
+
+    hostname: rabbitmq
+
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+    networks:
+      - investyes-network
+
+  ##########################################################
+  # REDIS
+  ##########################################################
+
+  redis:
+    image: redis:7
+
+    container_name: investyes-redis
+
+    restart: always
+
+    ports:
+      - "6379:6379"
+
+    networks:
+      - investyes-network
+
+  ##########################################################
+  # SEQ
+  ##########################################################
+
+  seq:
+    image: datalust/seq:latest
+
+    container_name: investyes-seq
+
+    restart: always
+
+    environment:
+      ACCEPT_EULA: "Y"
+
+    ports:
+      - "5341:80"
+
+    networks:
+      - investyes-network
+
+  ##########################################################
+  # JAEGER
+  ##########################################################
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+
+    container_name: investyes-jaeger
+
+    restart: always
+
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+
+    networks:
+      - investyes-network
+
+  ##########################################################
+  # OTEL COLLECTOR
+  ##########################################################
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+
+    container_name: investyes-otel
+
+    command:
+      - "--config=/etc/otelcol/config.yaml"
+
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otelcol/config.yaml
+
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+
+    depends_on:
+      - jaeger
+
+    networks:
+      - investyes-network
+
+  ##########################################################
+  # PROMETHEUS
+  ##########################################################
+
+  prometheus:
+    image: prom/prometheus
+
+    container_name: investyes-prometheus
+
+    restart: always
+
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+    ports:
+      - "9090:9090"
+
+    networks:
+      - investyes-network
+
+  ##########################################################
+  # GRAFANA
+  ##########################################################
+
+  grafana:
+    image: grafana/grafana
+
+    container_name: investyes-grafana
+
+    restart: always
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+    depends_on:
+      - prometheus
+
+    networks:
+      - investyes-network
+
+##########################################################
+# NETWORK
+##########################################################
+
+networks:
+  investyes-network:
+    driver: bridge
+
+##########################################################
+# VOLUMES
+##########################################################
+
+volumes:
+
+  postgres_data:
+
+  rabbitmq_data:
+
+  grafana_data:
+

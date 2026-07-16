@@ -670,14 +670,6 @@ Recursos disponíveis:
 - Exemplos de Requests
 - Exemplos de Responses
 
-Adicionar a captura abaixo no repositório:
-
-```text
-docs/images/swagger.png
-```
-
-Depois inserir:
-
 ```markdown
 ## Swagger
 
@@ -924,18 +916,10 @@ dotnet test
 
 ## Resultado
 
-Adicionar a captura abaixo:
-
-```text
-docs/images/test-explorer.png
-```
-
-Depois inserir:
-
 ```markdown
 ## Resultado da Execução
 
-![Test Explorer](docs/images/tests-explorer.png)
+![Test Explorer]([docs/images/tests-explorer.png])
 
 ```
 
@@ -955,14 +939,6 @@ Recursos disponíveis:
 - Exemplos de Responses
 
 ---
-
-Adicionar a captura abaixo:
-
-```text
-docs/images/swagger.png
-```
-
-Depois inserir:
 
 ```markdown
 ## Swagger
